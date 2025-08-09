@@ -8,6 +8,7 @@ Thank you for your interest in contributing to Django API Explorer! This documen
 - [Development Setup](#development-setup)
 - [Code Style](#code-style)
 - [Testing](#testing)
+- [CI/CD Pipeline](#cicd-pipeline)
 - [Pull Request Process](#pull-request-process)
 - [Feature Development](#feature-development)
 - [Bug Reports](#bug-reports)
@@ -53,6 +54,10 @@ source .venv/bin/activate
 ### 2. Install Dependencies
 
 ```bash
+# Quick setup using the development script
+./scripts/setup_dev.sh
+
+# Or manual installation:
 # Install development dependencies
 pip install -r requirements.txt
 
@@ -78,6 +83,9 @@ pytest
 
 # Test the CLI
 python cli.py --help
+
+# Run all quality checks
+./scripts/setup_dev.sh
 ```
 
 ## 📝 Code Style
@@ -176,6 +184,68 @@ def test_api_endpoint_creation():
     assert len(endpoint.methods) == 2
     assert APIMethod.GET in endpoint.methods
     assert APIMethod.POST in endpoint.methods
+```
+
+## 🔄 CI/CD Pipeline
+
+### Automated Checks
+
+Our CI/CD pipeline runs the following checks on every pull request:
+
+#### **🧪 Testing**
+- **Unit Tests**: Run with pytest across Python 3.8-3.11
+- **Code Coverage**: Minimum 80% coverage required
+- **Test Matrix**: Tests run on multiple Python versions
+
+#### **📝 Code Quality**
+- **Black**: Code formatting check
+- **Flake8**: Linting and style enforcement
+- **isort**: Import sorting validation
+- **MyPy**: Type checking
+
+#### **🔒 Security**
+- **Bandit**: Security vulnerability scanning
+- **Safety**: Dependency vulnerability check
+
+#### **📦 Build & Deploy**
+- **Package Build**: Verify package builds correctly
+- **Twine Check**: Validate package metadata
+- **Test PyPI**: Auto-deploy to Test PyPI on main branch
+- **Production PyPI**: Deploy on version tags
+
+### Local Development Checks
+
+Before submitting a PR, run these checks locally:
+
+```bash
+# Run all checks
+./scripts/setup_dev.sh
+
+# Or run individually:
+# Format code
+black .
+
+# Check code quality
+flake8 .
+
+# Run type checking
+mypy core/ web/ utils/
+
+# Run security checks
+bandit -r core/ web/ utils/
+
+# Run tests with coverage
+pytest --cov=core --cov=web --cov=utils --cov-report=html
+```
+
+### CI/CD Status Badges
+
+Add these badges to your PR description to show status:
+
+```markdown
+![Tests](https://github.com/SketchG2001/api-explorer/workflows/CI%20Pipeline/badge.svg)
+![Code Coverage](https://codecov.io/gh/SketchG2001/api-explorer/branch/main/graph/badge.svg)
+![Security](https://github.com/SketchG2001/api-explorer/workflows/Security%20Scan/badge.svg)
 ```
 
 ## 🔄 Pull Request Process
