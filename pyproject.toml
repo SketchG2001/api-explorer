@@ -38,13 +38,19 @@ dependencies = [
 dev = [
     "pytest>=7.0.0",
     "pytest-django>=4.5.0",
+    "pytest-cov>=4.0.0",
     "black>=22.0.0",
     "flake8>=5.0.0",
     "mypy>=1.0.0",
+    "isort>=5.0.0",
+    "bandit>=1.7.0",
+    "safety>=2.0.0",
+    "twine>=4.0.0",
+    "build>=0.10.0",
 ]
 
 [project.scripts]
-django-api-explorer = "cli:main"
+django-api-explorer = "django_api_explorer.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/SketchG2001/api-explorer"
@@ -53,14 +59,81 @@ Issues = "https://github.com/SketchG2001/api-explorer/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["core*", "utils*", "web*", "management*"]
+include = ["django_api_explorer*", "core*", "utils*", "web*", "management*"]
 
 [tool.black]
 line-length = 88
 target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
 
 [tool.mypy]
 python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+ignore_missing_imports = true
+exclude = [
+    'tests/',
+    'build/',
+    'dist/',
+    '\.venv/',
+    '\.git/',
+]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["core", "web", "utils", "django_api_explorer"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=core",
+    "--cov=web",
+    "--cov=utils",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+
+[tool.coverage.run]
+source = ["core", "web", "utils", "django_api_explorer"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

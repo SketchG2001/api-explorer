@@ -2,6 +2,8 @@
 
 A powerful command-line tool and web interface for discovering, documenting, and testing API endpoints in Django projects. Automatically extracts URL patterns, HTTP methods, and generates ready-to-use cURL commands with comprehensive dummy data.
 
+> **Latest Update**: CI/CD pipeline now runs on all branches with comprehensive testing and quality checks.
+
 ## ✨ Features
 
 ### 🔍 **Smart API Discovery**
