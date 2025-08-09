@@ -44,7 +44,7 @@ dev = [
 ]
 
 [project.scripts]
-django-api-explorer = "cli:main"
+django-api-explorer = "django_api_explorer.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/SketchG2001/api-explorer"
@@ -53,7 +53,7 @@ Issues = "https://github.com/SketchG2001/api-explorer/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["core*", "utils*", "web*", "management*"]
+include = ["django_api_explorer*", "core*", "utils*", "web*", "management*"]
 
 [tool.black]
 line-length = 88
