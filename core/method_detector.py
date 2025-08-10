@@ -1,9 +1,7 @@
-import inspect
 from django.views import View
-from django.views.decorators.http import require_http_methods
-from rest_framework.viewsets import ViewSet
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet
 
 
 def get_allowed_methods(callback):
@@ -39,16 +37,27 @@ def get_allowed_methods(callback):
 
     # Check for DRF action decorators
     if hasattr(view_func, "action"):
-        action = view_func.action
-        if action in ["list", "retrieve"]:
+        if view_func.action in ["list", "retrieve"]:
             methods.add("GET")
-        elif action in ["create"]:
+        elif view_func.action in ["create"]:
             methods.add("POST")
-        elif action in ["update", "partial_update"]:
+        elif view_func.action in ["update", "partial_update"]:
             methods.add("PUT")
             methods.add("PATCH")
-        elif action in ["destroy"]:
+        elif view_func.action in ["destroy"]:
             methods.add("DELETE")
+
+    # Check for DRF action decorator with methods
+    if hasattr(view_func, "methods"):
+        methods.update(view_func.methods)
+
+    # Check for DRF action decorator with detail parameter
+    if hasattr(view_func, "detail"):
+        detail = view_func.detail
+        if detail is False:  # List action
+            methods.add("GET")
+        elif detail is True:  # Detail action
+            methods.add("GET")
 
     # Fallback: assume GET if nothing else is specified
     if not methods:
@@ -82,6 +91,13 @@ def _get_viewset_methods(view_class):
             # Try to determine method from action name or decorators
             if hasattr(action_func, "methods"):
                 methods.update(action_func.methods)
+            elif hasattr(action_func, "action"):
+                # Check if it's a DRF action with specific methods
+                if hasattr(action_func, "methods"):
+                    methods.update(action_func.methods)
+                else:
+                    # Default to GET for custom actions
+                    methods.add("GET")
             else:
                 # Default to GET for custom actions
                 methods.add("GET")

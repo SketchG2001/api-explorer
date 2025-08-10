@@ -1,0 +1,64 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Every Monday at 2 AM
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  security:
+    name: Security Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        
+    - name: Run Bandit security scan
+      run: |
+        bandit -r core/ web/ utils/ -f json -o bandit-report.json -c .bandit
+        bandit -r core/ web/ utils/ -f txt -o bandit-report.txt -c .bandit
+        # Check if there are any HIGH severity issues
+        python3 -c "
+        import json
+        with open('bandit-report.json', 'r') as f:
+            data = json.load(f)
+        high_severity = [issue for issue in data['results'] if issue['issue_severity'] == 'HIGH']
+        if high_severity:
+            print(f'Found {len(high_severity)} HIGH severity security issues:')
+            for issue in high_severity:
+                print(f'- {issue[\"filename\"]}:{issue[\"line_number\"]} {issue[\"issue_text\"]}')
+            exit(1)
+        else:
+            print('No HIGH severity security issues found.')
+        "
+        
+    - name: Run Safety check
+      run: |
+        safety check --json --output safety-report.json || true
+        safety check --text --output safety-report.txt || true
+        
+    - name: Upload security reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          bandit-report.txt
+          safety-report.json
+          safety-report.txt
