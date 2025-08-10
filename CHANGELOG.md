@@ -18,7 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced error handling and validation
 - Improved code quality and maintainability
 
-## [1.0.2] - 15-01-2025
+## [1.0.3] - 15-01-2025
+
+### Fixed
+- **PyPI Version Conflict**: Resolved version conflict by releasing 1.0.3
+- **Previous Issue**: Version 1.0.2 was deleted from PyPI due to deployment conflicts
+- **Clean Release**: Fresh deployment with all import fixes and improvements
+
+### Note
+- Version 1.0.2 was removed from PyPI due to deployment issues
+- Version 1.0.3 contains the same fixes and improvements as 1.0.2
+- This ensures a clean, conflict-free release
+
+## [1.0.2] - 15-01-2025 (REMOVED FROM PYPI)
 
 ### Fixed
 - **ModuleNotFoundError**: Fixed import issues that prevented the package from working after installation

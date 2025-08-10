@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_api_explorer"
-version = "1.0.2"
+version = "1.0.3"
 description = "A powerful command-line tool and web interface for discovering, documenting, and testing API endpoints in Django projects"
 readme = "README.md"
 requires-python = ">=3.9"
