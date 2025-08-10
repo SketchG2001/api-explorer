@@ -9,6 +9,11 @@ on:
 env:
   PYTHON_VERSION: "3.11"
 
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
 jobs:
   deploy:
     name: Deploy Package
@@ -47,18 +52,25 @@ jobs:
       run: |
         twine upload dist/*
         
+    - name: Get package version
+      id: get_version
+      run: |
+        VERSION=$(python -c "import re; print(re.search(r'version = \"([^\"]+)\"', open('pyproject.toml').read()).group(1))")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ github.run_number }}
-        name: Release v${{ github.run_number }}
+        tag_name: v${{ steps.get_version.outputs.version }}
+        name: Release v${{ steps.get_version.outputs.version }}
         body: |
           Automated release from main branch
           
           Changes in this release:
           - Automated deployment from commit ${{ github.sha }}
+          - Package version: ${{ steps.get_version.outputs.version }}
           - All tests passed
           - Code quality checks passed
         draft: false
