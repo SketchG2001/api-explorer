@@ -59,7 +59,7 @@ Issues = "https://github.com/SketchG2001/api-explorer/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["django_api_explorer*", "core*", "utils*", "web*", "management*"]
+include = ["django_api_explorer*"]
 
 [tool.black]
 line-length = 88
@@ -97,7 +97,7 @@ exclude = [
 profile = "black"
 multi_line_output = 3
 line_length = 88
-known_first_party = ["core", "web", "utils", "django_api_explorer"]
+known_first_party = ["django_api_explorer"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -107,16 +107,14 @@ python_functions = ["test_*"]
 addopts = [
     "--strict-markers",
     "--strict-config",
-    "--cov=core",
-    "--cov=web",
-    "--cov=utils",
+    "--cov=django_api_explorer",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
 ]
 
 [tool.coverage.run]
-source = ["core", "web", "utils", "django_api_explorer"]
+source = ["django_api_explorer"]
 omit = [
     "*/tests/*",
     "*/test_*",

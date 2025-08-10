@@ -188,8 +188,8 @@ include LICENSE
 include requirements.txt
 include pyproject.toml
 
-recursive-include web/templates *.html
-recursive-include web/static *.css *.js
+recursive-include django_api_explorer/web/templates *.html
+recursive-include django_api_explorer/web/static *.css *.js
 
 global-exclude *.pyc
 global-exclude __pycache__

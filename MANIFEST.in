@@ -2,20 +2,25 @@ include README.md
 include CHANGELOG.md
 include CONTRIBUTING.md
 include DEPLOYMENT.md
-include PROJECT_SUMMARY.md
 include QUICK_START.md
-include DOCUMENTATION_SUMMARY.md
 include DJANGO_INTEGRATION.md
+include BRANCH_PROTECTION.md
+include DOCUMENTATION_SUMMARY.md
+include LICENSE
 include requirements.txt
-include pyproject.toml
 include Pipfile
-include __init__.py
+include pyproject.toml
 include .gitignore
+include .editorconfig
 
-recursive-include core *.py
-recursive-include utils *.py
-recursive-include web *.py *.html *.css *.js
-recursive-include tests *.py
+recursive-include django_api_explorer/web/templates *
+recursive-include django_api_explorer/web/static *
+recursive-include django_api_explorer/core *
+recursive-include django_api_explorer/utils *
+recursive-include django_api_explorer/management *
+recursive-include tests *
+recursive-include scripts *
+recursive-include .github/workflows *
 
 exclude *.pyc
 exclude __pycache__

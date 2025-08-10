@@ -53,7 +53,7 @@ api-exporer/
 ├── __init__.py                 # 🐍 Python package init
 ├── PROJECT_SUMMARY.md          # 📋 This cleanup summary
 │
-├── core/                       # 🔧 Core functionality
+├── django_api_explorer/core/   # 🔧 Core functionality
 │   ├── __init__.py
 │   ├── url_extractor.py        # URL pattern extraction
 │   ├── method_detector.py      # HTTP method detection
@@ -62,14 +62,14 @@ api-exporer/
 │   ├── formatter.py            # Output formatting
 │   └── models.py               # Data models
 │
-├── web/                        # 🌐 Web interface
+├── django_api_explorer/web/    # 🌐 Web interface
 │   ├── __init__.py
 │   ├── enhanced_server.py      # Enhanced HTTP server
 │   ├── file_watcher_server.py  # File watching server
 │   └── templates/
 │       └── enhanced_index.html # Main UI template
 │
-├── utils/                      # 🛠️ Utility functions
+├── django_api_explorer/utils/  # 🛠️ Utility functions
 │   ├── __init__.py
 │   └── path_utils.py           # Path utilities
 │

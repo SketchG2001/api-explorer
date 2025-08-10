@@ -177,7 +177,7 @@ class FileWatcherServer:
             django.setup()
 
             # Import the extractor
-            from core.url_extractor import URLPatternExtractor
+            from django_api_explorer.core.url_extractor import URLPatternExtractor
 
             # Extract endpoints
             extractor = URLPatternExtractor(str(self.project_root))
