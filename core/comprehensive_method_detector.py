@@ -2,13 +2,15 @@
 Comprehensive HTTP method detector for Django REST Framework ViewSets.
 """
 
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 from .models import APIMethod
 
 
 def detect_methods_for_viewset_pattern(pattern_str: str, view_class) -> List[APIMethod]:
     """
     Detect HTTP methods for a ViewSet URL pattern.
+    This is a generic implementation that works with any Django project.
     """
     methods = []
 
@@ -34,67 +36,81 @@ def detect_methods_for_viewset_pattern(pattern_str: str, view_class) -> List[API
         if hasattr(view_class, "destroy"):
             methods.append(APIMethod.DELETE)
 
-    # Custom action patterns
-    elif "/apply-player-favourites/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/store-campaign-players/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/archive/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/assessments/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/book/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/cancel-reservation/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/clone-campaign/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/flights/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/history/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/mark_invoiced/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/mark_not_invoiced/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/remove-price-modifier/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/stop/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/unarchive/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/upsert-price-modifier/" in pattern_str:
-        methods.append(APIMethod.GET)
-
-    # Flight-specific patterns
-    elif "/add-spot-group/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/allocation-profile/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/allocation-profile-site/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/assign-all-players/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/assign-players/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/available-players/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/clone/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/remove-spot-group/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/site-count/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/update-spot-group/" in pattern_str:
-        methods.append(APIMethod.GET)
-    elif "/update-spot-groups-rules/" in pattern_str:
-        methods.append(APIMethod.GET)
+    # Generic custom action detection
+    # Look for custom actions in the ViewSet
+    if hasattr(view_class, "get_extra_actions"):
+        extra_actions = view_class.get_extra_actions()
+        for action_func in extra_actions:
+            # Check if this pattern matches the action
+            action_name = action_func.__name__
+            if (
+                f"/{action_name}/" in pattern_str
+                or f"/{action_name.replace('_', '-')}/" in pattern_str
+            ):
+                # Check if the action has specific method restrictions
+                if hasattr(action_func, "methods"):
+                    for method in action_func.methods:
+                        if hasattr(APIMethod, method.upper()):
+                            methods.append(getattr(APIMethod, method.upper()))
+                else:
+                    # Default to GET for custom actions
+                    methods.append(APIMethod.GET)
 
     # Default to GET if no methods detected
     if not methods:
         methods.append(APIMethod.GET)
 
-    return methods
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_methods = []
+    for method in methods:
+        if method not in seen:
+            seen.add(method)
+            unique_methods.append(method)
+
+    return unique_methods
+
+
+def detect_methods_for_pattern(pattern_str: str, view_class) -> List[APIMethod]:
+    """
+    Generic method detection for any URL pattern.
+    This is a fallback when the specific ViewSet detection fails.
+    """
+    methods = []
+
+    # Check for standard HTTP methods in the view class
+    for method_name in ["get", "post", "put", "patch", "delete", "head", "options"]:
+        if hasattr(view_class, method_name):
+            if hasattr(APIMethod, method_name.upper()):
+                methods.append(getattr(APIMethod, method_name.upper()))
+
+    # Check for DRF-specific methods (only if not already detected above)
+    if hasattr(view_class, "list") and APIMethod.GET not in methods:
+        methods.append(APIMethod.GET)
+    if hasattr(view_class, "create") and APIMethod.POST not in methods:
+        methods.append(APIMethod.POST)
+    if hasattr(view_class, "retrieve") and APIMethod.GET not in methods:
+        methods.append(APIMethod.GET)
+    if hasattr(view_class, "update") and APIMethod.PUT not in methods:
+        methods.append(APIMethod.PUT)
+    if hasattr(view_class, "partial_update") and APIMethod.PATCH not in methods:
+        methods.append(APIMethod.PATCH)
+    if hasattr(view_class, "destroy") and APIMethod.DELETE not in methods:
+        methods.append(APIMethod.DELETE)
+
+    # Default to GET if no methods detected
+    if not methods:
+        methods.append(APIMethod.GET)
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_methods = []
+    for method in methods:
+        if method not in seen:
+            seen.add(method)
+            unique_methods.append(method)
+
+    return unique_methods
 
 
 def get_viewset_method_summary(view_class) -> Dict[str, List[APIMethod]]:
@@ -132,3 +148,32 @@ def get_viewset_method_summary(view_class) -> Dict[str, List[APIMethod]]:
                 summary[action_name] = [APIMethod.GET]
 
     return summary
+
+
+def debug_method_detection(pattern_str: str, view_class) -> Dict[str, Any]:
+    """
+    Debug method detection to understand why duplicate methods might occur.
+    """
+    debug_info = {
+        "pattern": pattern_str,
+        "view_class": (
+            view_class.__name__ if hasattr(view_class, "__name__") else str(view_class)
+        ),
+        "has_get": hasattr(view_class, "get"),
+        "has_list": hasattr(view_class, "list"),
+        "has_retrieve": hasattr(view_class, "retrieve"),
+        "has_create": hasattr(view_class, "create"),
+        "has_update": hasattr(view_class, "update"),
+        "has_partial_update": hasattr(view_class, "partial_update"),
+        "has_destroy": hasattr(view_class, "destroy"),
+        "detected_methods": [],
+    }
+
+    # Run both detection methods
+    viewset_methods = detect_methods_for_viewset_pattern(pattern_str, view_class)
+    generic_methods = detect_methods_for_pattern(pattern_str, view_class)
+
+    debug_info["viewset_methods"] = [str(m) for m in viewset_methods]
+    debug_info["generic_methods"] = [str(m) for m in generic_methods]
+
+    return debug_info

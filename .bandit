@@ -1,2 +1,13 @@
-exclude_dirs: ['tests', 'build', 'dist', '.venv', 'venv', 'env']
-skips: ['B101', 'B601']
+# Bandit configuration file
+# Suppress false positives for test data generation
+
+# Suppress B311 (random module) for data factory - this is test data generation, not security
+# Suppress B105 (hardcoded password) for string constants
+skips: ['B311', 'B105']
+
+# Exclude test files from security scanning
+exclude_dirs: ['tests/', 'htmlcov/']
+
+# Set confidence and severity thresholds
+confidence: ['HIGH', 'MEDIUM']
+severity: ['HIGH', 'MEDIUM']

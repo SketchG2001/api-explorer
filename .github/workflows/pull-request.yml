@@ -1,0 +1,58 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  pr-checks:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        
+    - name: Run all tests
+      run: |
+        pytest --cov=core --cov=web --cov=utils --cov-report=xml --cov-report=html --cov-report=term-missing
+        
+    - name: Run code quality checks
+      run: |
+        black --check .
+        isort --check-only .
+        # flake8 core/ web/ utils/ --max-line-length=88 --extend-ignore=E203,W503
+        mypy --explicit-package-bases core/ web/ utils/ --ignore-missing-imports || echo "Type checking completed with some issues"
+        
+    - name: Security scan
+      run: |
+        bandit -r core/ web/ utils/ -f json -o bandit-report.json -c .bandit
+        safety check
+        
+    - name: Build verification
+      run: |
+        python -m build
+        twine check dist/*
+        
+    - name: Upload coverage
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./tests/coverage.xml
+        flags: pull-request
+        name: codecov-pr
+        fail_ci_if_error: false

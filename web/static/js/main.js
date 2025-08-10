@@ -393,7 +393,7 @@
             
             const paramLower = paramName.toLowerCase();
             
-            // Use parameter type and format if available
+            // Use parameter type and format if available (priority 1)
             if (paramType === 'integer') {
                 if (paramLower.includes('page') || paramLower.includes('offset')) {
                     return '1';
@@ -424,31 +424,49 @@
                 return 'sample-slug';
             }
             
-            // Fallback to name-based patterns
+            // Generate based on parameter name (priority 2)
             if (paramLower.includes('id') || paramLower.includes('pk')) {
-                return '1';
+                return Math.floor(Math.random() * 1000) + 1;
             } else if (paramLower.includes('uuid')) {
-                return '123e4567-e89b-12d3-a456-426614174000';
-            } else if (paramLower.includes('slug')) {
-                return 'sample-slug';
-            } else if (paramLower.includes('username')) {
-                return 'sample_user';
+                return '550e8400-e29b-41d4-a716-446655440000';
             } else if (paramLower.includes('email')) {
                 return 'user@example.com';
+            } else if (paramLower.includes('name')) {
+                return 'sample_name';
+            } else if (paramLower.includes('slug')) {
+                return 'sample-slug';
+            } else if (paramLower.includes('date')) {
+                return '2024-01-01';
+            } else if (paramLower.includes('count') || paramLower.includes('limit')) {
+                return Math.floor(Math.random() * 100) + 1;
+            } else if (paramLower.includes('page')) {
+                return Math.floor(Math.random() * 10) + 1;
+            } else if (paramLower.includes('username')) {
+                return 'sample_user';
             } else if (paramLower.includes('token')) {
                 return 'your_token_here';
             } else if (paramLower.includes('format')) {
                 return 'json';
-            } else if (paramLower.includes('page')) {
-                return '1';
-            } else if (paramLower.includes('limit') || paramLower.includes('size')) {
-                return '10';
             } else if (paramLower.includes('search') || paramLower.includes('query')) {
                 return 'sample';
-            } else if (paramLower.includes('date') || paramLower.includes('start') || paramLower.includes('end')) {
+            } else if (paramLower.includes('start') || paramLower.includes('end')) {
                 return '2024-01-01';
-            } else {
-                return 'sample_value';
+            }
+            
+            // Generate based on parameter type (priority 3)
+            switch (paramType) {
+                case 'integer':
+                    return Math.floor(Math.random() * 1000) + 1;
+                case 'string':
+                    return `sample_${paramName}_${Math.floor(Math.random() * 100) + 1}`;
+                case 'uuid':
+                    return '550e8400-e29b-41d4-a716-446655440000';
+                case 'email':
+                    return 'user@example.com';
+                case 'date':
+                    return '2024-01-01';
+                default:
+                    return `sample_${paramName}`;
             }
         }
         
@@ -466,7 +484,180 @@
             const path = endpoint.path || '';
             const method = Array.isArray(endpoint.methods) ? endpoint.methods[0] : endpoint.methods;
             
-            // Comprehensive payload generation based on endpoint path and method
+            // Generate realistic sample data based on endpoint type
+            const pathLower = path.toLowerCase();
+            
+            // User-related endpoints
+            if (pathLower.includes('user') || pathLower.includes('profile') || pathLower.includes('account')) {
+                if (method === 'POST') {
+                    return {
+                        username: `user_${Math.floor(Math.random() * 9000) + 1000}`,
+                        email: 'user@example.com',
+                        first_name: 'John',
+                        last_name: 'Doe',
+                        password: 'SecurePassword123!',
+                        phone: '+1-555-123-4567',
+                        date_of_birth: '1990-01-01',
+                        is_active: true,
+                        profile: {
+                            bio: 'Software developer passionate about creating amazing applications.',
+                            location: 'San Francisco, CA',
+                            website: 'https://example.com',
+                            social_links: {
+                                twitter: '@johndoe',
+                                linkedin: 'linkedin.com/in/johndoe',
+                                github: 'github.com/johndoe'
+                            }
+                        }
+                    };
+                } else if (method === 'PUT' || method === 'PATCH') {
+                    return {
+                        first_name: 'John',
+                        last_name: 'Doe',
+                        email: 'user@example.com',
+                        phone: '+1-555-123-4567',
+                        profile: {
+                            bio: 'Updated bio with new information.',
+                            location: 'San Francisco, CA'
+                        }
+                    };
+                }
+            }
+            
+            // Product-related endpoints
+            if (pathLower.includes('product') || pathLower.includes('item')) {
+                if (method === 'POST') {
+                    return {
+                        name: `Product ${Math.floor(Math.random() * 900) + 100}`,
+                        description: 'High-quality product designed for modern needs.',
+                        price: (Math.random() * 1000 + 10).toFixed(2),
+                        currency: 'USD',
+                        category: 'Electronics',
+                        brand: 'Tech Solutions',
+                        sku: `SKU-${Math.floor(Math.random() * 90000) + 10000}`,
+                        in_stock: true,
+                        stock_quantity: Math.floor(Math.random() * 1000),
+                        tags: ['featured', 'popular', 'trending'],
+                        specifications: {
+                            weight: '2.5 kg',
+                            dimensions: '30x20x10 cm',
+                            color: 'Black'
+                        }
+                    };
+                } else if (method === 'PUT' || method === 'PATCH') {
+                    return {
+                        name: `Updated Product ${Math.floor(Math.random() * 900) + 100}`,
+                        price: (Math.random() * 1000 + 10).toFixed(2),
+                        description: 'Updated product description with new features.',
+                        in_stock: true,
+                        stock_quantity: Math.floor(Math.random() * 500) + 10
+                    };
+                }
+            }
+            
+            // Order-related endpoints
+            if (pathLower.includes('order') || pathLower.includes('purchase')) {
+                if (method === 'POST') {
+                    return {
+                        customer_id: Math.floor(Math.random() * 9000) + 1000,
+                        items: [
+                            {
+                                product_id: Math.floor(Math.random() * 100) + 1,
+                                quantity: Math.floor(Math.random() * 5) + 1,
+                                unit_price: (Math.random() * 200 + 10).toFixed(2)
+                            }
+                        ],
+                        shipping_address: {
+                            street: '123 Main Street',
+                            city: 'New York',
+                            state: 'NY',
+                            zip_code: '10001',
+                            country: 'United States'
+                        },
+                        payment_method: 'credit_card',
+                        notes: 'Please deliver during business hours.'
+                    };
+                } else if (method === 'PUT' || method === 'PATCH') {
+                    return {
+                        status: 'processing',
+                        tracking_number: `TRK${Math.floor(Math.random() * 900000000) + 100000000}`,
+                        estimated_delivery: new Date(Date.now() + (7 + Math.random() * 7) * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                    };
+                }
+            }
+            
+            // Article/blog endpoints
+            if (pathLower.includes('article') || pathLower.includes('post') || pathLower.includes('blog')) {
+                if (method === 'POST') {
+                    return {
+                        title: 'Amazing Article About Technology',
+                        content: 'This is a comprehensive article about the latest developments in technology.',
+                        excerpt: 'A brief summary of the article content.',
+                        author_id: Math.floor(Math.random() * 100) + 1,
+                        category: 'Technology',
+                        tags: ['featured', 'trending', 'insights'],
+                        status: 'published',
+                        featured_image: 'https://example.com/images/article.jpg',
+                        meta_description: 'SEO-friendly description for search engines.',
+                        published_at: new Date().toISOString().split('T')[0]
+                    };
+                } else if (method === 'PUT' || method === 'PATCH') {
+                    return {
+                        title: 'Updated Article About Technology',
+                        content: 'Updated content with new information and insights.',
+                        status: 'published',
+                        updated_at: new Date().toISOString()
+                    };
+                }
+            }
+            
+            // Authentication endpoints
+            if (pathLower.includes('auth') || pathLower.includes('login') || pathLower.includes('register')) {
+                if (method === 'POST') {
+                    if (pathLower.includes('login')) {
+                        return {
+                            username: 'johndoe',
+                            password: 'SecurePassword123!',
+                            remember_me: true
+                        };
+                    } else if (pathLower.includes('register')) {
+                        return {
+                            username: `user_${Math.floor(Math.random() * 9000) + 1000}`,
+                            email: 'user@example.com',
+                            password: 'SecurePassword123!',
+                            password_confirm: 'SecurePassword123!',
+                            first_name: 'John',
+                            last_name: 'Doe'
+                        };
+                    } else if (pathLower.includes('password')) {
+                        return {
+                            email: 'user@example.com',
+                            current_password: 'OldPassword123!',
+                            new_password: 'NewSecurePassword456!',
+                            new_password_confirm: 'NewSecurePassword456!'
+                        };
+                    }
+                }
+            }
+            
+            // File upload endpoints
+            if (pathLower.includes('upload') || pathLower.includes('file')) {
+                if (method === 'POST') {
+                    return {
+                        file: 'path/to/sample/file.pdf',
+                        description: 'Sample file for testing purposes',
+                        category: 'document',
+                        tags: ['sample', 'test', 'upload'],
+                        metadata: {
+                            size: Math.floor(Math.random() * 10485760) + 1024, // 1KB to 10MB
+                            format: 'pdf',
+                            uploaded_by: Math.floor(Math.random() * 100) + 1
+                        }
+                    };
+                }
+            }
+            
+            // Campaign-related endpoints (keeping existing logic)
             if (path.includes('campaign')) {
                 if (method === 'POST') {
                     return {

@@ -6,18 +6,19 @@ A command-line tool to discover and document API endpoints in Django projects.
 """
 import os
 import sys
+
 import click
 from rich.console import Console
-from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
+from core.formatter import format_as_text
 from core.settings_loader import (
-    load_django_settings,
     get_allowed_hosts,
     get_installed_apps,
+    load_django_settings,
 )
 from core.url_extractor import URLPatternExtractor
-from core.formatter import format_as_text
 from utils.path_utils import join_url
 from web.enhanced_server import run_enhanced_server
 
