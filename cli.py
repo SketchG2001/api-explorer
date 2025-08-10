@@ -54,7 +54,7 @@ console = Console()
 @click.option(
     "--port", type=int, default=8001, help="Port for the web server (default: 8001)"
 )
-@click.version_option(version="1.0.0", prog_name="django-api-explorer")
+@click.version_option(version="1.0.1", prog_name="django-api-explorer")
 def main(project_root, settings, app, curl, browser, watch, json, output, host, port):
     """
     🚀 Django API Explorer

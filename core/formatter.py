@@ -198,7 +198,7 @@ class APIFormatter:
         return html
 
     def format_openapi(
-        self, endpoints, title="Django API", version="1.0.0", base_url=""
+        self, endpoints, title="Django API", version="1.0.1", base_url=""
     ):
         """
         Returns OpenAPI 3.0 specification in JSON format.

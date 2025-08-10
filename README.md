@@ -5,8 +5,8 @@ A powerful command-line tool and web interface for discovering, documenting, and
 > **Latest Update**: CI/CD pipeline now runs on all branches with comprehensive testing and quality checks.
 
 
-[![PyPI package](https://img.shields.io/badge/pypi%20package-1.0.0-brightgreen.svg)](https://pypi.org/project/django-api-explorer/)
-[![Release](https://img.shields.io/badge/release-v1.0.0-blue.svg)](https://github.com/SketchG2001/api-explorer/releases)
+[![PyPI package](https://img.shields.io/badge/pypi%20package-1.0.1-brightgreen.svg)](https://pypi.org/project/django-api-explorer/)
+[![Release](https://img.shields.io/badge/release-v1.0.1-blue.svg)](https://github.com/SketchG2001/api-explorer/releases)
 [![GitHub](https://img.shields.io/badge/github-SketchG2001%2Fapi--explorer-blue.svg)](https://github.com/SketchG2001/api-explorer)
 [![Codecov](https://img.shields.io/badge/codecov-95%25-brightgreen.svg)](https://codecov.io/gh/SketchG2001/api-explorer)
 [![Contributors](https://img.shields.io/badge/contributors-1-brightgreen.svg)](https://github.com/SketchG2001/api-explorer/graphs/contributors)
