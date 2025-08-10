@@ -67,7 +67,7 @@ class URLPatternExtractor:
                 if methods:
                     view_info["methods"] = methods
             else:
-                from .method_detector import get_allowed_methods
+                from . import get_allowed_methods
 
                 detected_methods = get_allowed_methods(pattern.callback)
                 if detected_methods:
@@ -112,7 +112,7 @@ class URLPatternExtractor:
 
     def _get_viewset_methods_for_pattern(self, pattern, view_class):
         """Get HTTP methods for a specific ViewSet pattern."""
-        from .comprehensive_method_detector import (
+        from . import (
             detect_methods_for_pattern,
             detect_methods_for_viewset_pattern,
         )
@@ -443,7 +443,7 @@ class URLPatternExtractor:
                 if app_name:
                     info["app_name"] = app_name
 
-            from .method_detector import get_allowed_methods
+            from . import get_allowed_methods
 
             detected_methods = get_allowed_methods(callback)
             methods = []

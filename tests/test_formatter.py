@@ -6,8 +6,8 @@ Tests all formatting functionality for API endpoints.
 import unittest
 from unittest.mock import Mock, patch
 
-from core.formatter import APIFormatter
-from core.models import APIEndpoint, APIMethod, AuthType
+from django_api_explorer.core.formatter import APIFormatter
+from django_api_explorer.core.models import APIEndpoint, APIMethod, AuthType
 
 
 class TestAPIFormatter(unittest.TestCase):

@@ -5,7 +5,7 @@ Tests all data models and their functionality.
 
 import unittest
 
-from core.models import APIEndpoint, APIMethod, AuthType
+from django_api_explorer.core.models import APIEndpoint, APIMethod, AuthType
 
 
 class TestAPIMethod(unittest.TestCase):

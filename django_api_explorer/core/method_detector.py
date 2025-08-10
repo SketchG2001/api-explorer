@@ -1,7 +1,36 @@
 from django.views import View
-from rest_framework.generics import GenericAPIView
-from rest_framework.views import APIView
-from rest_framework.viewsets import ViewSet
+
+# Global flag to track DRF availability
+DRF_AVAILABLE = None
+
+def _check_drf_availability():
+    """Check if Django REST Framework is available."""
+    global DRF_AVAILABLE
+    if DRF_AVAILABLE is None:
+        try:
+            import rest_framework
+            DRF_AVAILABLE = True
+        except ImportError:
+            DRF_AVAILABLE = False
+    return DRF_AVAILABLE
+
+def _get_drf_classes():
+    """Get DRF classes if available."""
+    if not _check_drf_availability():
+        # Return dummy classes if DRF is not available
+        class GenericAPIView:
+            pass
+        class APIView:
+            pass
+        class ViewSet:
+            pass
+        return GenericAPIView, APIView, ViewSet
+    
+    # Import DRF classes only when needed
+    from rest_framework.generics import GenericAPIView
+    from rest_framework.views import APIView
+    from rest_framework.viewsets import ViewSet
+    return GenericAPIView, APIView, ViewSet
 
 
 def get_allowed_methods(callback):
@@ -69,6 +98,10 @@ def get_allowed_methods(callback):
 def _get_viewset_methods(view_class):
     """Extract methods from DRF ViewSet."""
     methods = set()
+    
+    # Only proceed if DRF is available
+    if not _check_drf_availability():
+        return methods
 
     # Standard ViewSet methods
     if hasattr(view_class, "list"):
@@ -109,33 +142,37 @@ def _get_class_based_view_methods(view_class):
     """Extract methods from class-based views."""
     methods = set()
 
-    # Check if it's a DRF ViewSet
-    if isinstance(view_class, ViewSet) or issubclass(view_class, ViewSet):
-        methods.update(_get_viewset_methods(view_class))
-        return methods
+    # Check if it's a DRF ViewSet (only if DRF is available)
+    if _check_drf_availability():
+        GenericAPIView, APIView, ViewSet = _get_drf_classes()
+        if isinstance(view_class, ViewSet) or issubclass(view_class, ViewSet):
+            methods.update(_get_viewset_methods(view_class))
+            return methods
 
-    # Check if it's a DRF APIView or GenericAPIView
-    if isinstance(view_class, (APIView, GenericAPIView)) or issubclass(
-        view_class, (APIView, GenericAPIView)
-    ):
-        # Check for standard HTTP methods
-        for method_name in ["get", "post", "put", "patch", "delete", "head", "options"]:
-            if hasattr(view_class, method_name):
-                methods.add(method_name.upper())
+    # Check if it's a DRF APIView or GenericAPIView (only if DRF is available)
+    if _check_drf_availability():
+        GenericAPIView, APIView, ViewSet = _get_drf_classes()
+        if isinstance(view_class, (APIView, GenericAPIView)) or issubclass(
+            view_class, (APIView, GenericAPIView)
+        ):
+            # Check for standard HTTP methods
+            for method_name in ["get", "post", "put", "patch", "delete", "head", "options"]:
+                if hasattr(view_class, method_name):
+                    methods.add(method_name.upper())
 
-        # Check for DRF action methods
-        if hasattr(view_class, "list"):
-            methods.add("GET")
-        if hasattr(view_class, "create"):
-            methods.add("POST")
-        if hasattr(view_class, "retrieve"):
-            methods.add("GET")
-        if hasattr(view_class, "update"):
-            methods.add("PUT")
-        if hasattr(view_class, "partial_update"):
-            methods.add("PATCH")
-        if hasattr(view_class, "destroy"):
-            methods.add("DELETE")
+            # Check for DRF action methods
+            if hasattr(view_class, "list"):
+                methods.add("GET")
+            if hasattr(view_class, "create"):
+                methods.add("POST")
+            if hasattr(view_class, "retrieve"):
+                methods.add("GET")
+            if hasattr(view_class, "update"):
+                methods.add("PUT")
+            if hasattr(view_class, "partial_update"):
+                methods.add("PATCH")
+            if hasattr(view_class, "destroy"):
+                methods.add("DELETE")
 
     # Check for standard Django class-based views
     elif isinstance(view_class, View) or issubclass(view_class, View):

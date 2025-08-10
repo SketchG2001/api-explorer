@@ -6,8 +6,8 @@ Tests all URL parsing and endpoint extraction functionality.
 import unittest
 from unittest.mock import MagicMock, Mock, patch
 
-from core.models import APIEndpoint, APIMethod, AuthType
-from core.url_extractor import URLPatternExtractor
+from django_api_explorer.core.models import APIEndpoint, APIMethod, AuthType
+from django_api_explorer.core.url_extractor import URLPatternExtractor
 
 
 class MockURLPattern:
@@ -209,7 +209,7 @@ class TestURLPatternExtractor(unittest.TestCase):
     def test_is_valid_django_app(self):
         """Test Django app validation."""
         # Mock the apps.get_app_config to return None for invalid apps
-        with patch('core.url_extractor.apps') as mock_apps:
+        with patch('django_api_explorer.core.url_extractor.apps') as mock_apps:
             mock_apps.get_app_config.side_effect = Exception("App not found")
             
             # Test with invalid app name
@@ -236,7 +236,7 @@ class TestURLPatternExtractor(unittest.TestCase):
     def test_extract_from_app(self):
         """Test extraction from specific app."""
         # Mock the app configuration
-        with patch('core.url_extractor.apps') as mock_apps:
+        with patch('django_api_explorer.core.url_extractor.apps') as mock_apps:
             mock_app = Mock()
             mock_app.config = Mock()
             mock_app.config.name = "users"

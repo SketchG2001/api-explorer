@@ -18,6 +18,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced error handling and validation
 - Improved code quality and maintainability
 
+## [1.0.4] - 10-08-2025
+
+### Fixed
+- **Static File Inclusion**: Fixed package build to properly include web UI static files (CSS, JS, HTML templates)
+- **UI Loading Issues**: Resolved blank page issues in browser mode by ensuring all web assets are included in the package
+- **Package Structure**: Enhanced `pyproject.toml` with explicit static file inclusion using `[tool.setuptools.package-data]`
+
+### Changed
+- **Build Configuration**: Updated package build configuration to include web UI assets
+- **Documentation**: Updated version references and release notes
+
+### Technical Details
+- Added `[tool.setuptools.package-data]` section to `pyproject.toml`
+- Ensured `web/templates/*.html`, `web/static/css/*.css`, and `web/static/js/*.js` are included in package
+- Package now properly serves web UI with all required assets
+
 ## [1.0.3] - 15-01-2025
 
 ### Fixed

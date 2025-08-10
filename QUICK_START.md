@@ -14,7 +14,7 @@ pip install django-api-explorer
 pipenv install django-api-explorer
 ```
 
-> **Note**: v1.0.3+ includes fixes for import issues, ensuring the package works correctly when installed globally.
+> **Note**: v1.0.4+ includes fixes for import issues and static file inclusion, ensuring the package works correctly when installed globally and the web UI loads properly.
 
 ### From Source
 

@@ -12,13 +12,13 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from django_api_explorer.core.formatter import format_as_text
-from django_api_explorer.core.settings_loader import (
+from django_api_explorer.core import format_as_text
+from django_api_explorer.core import (
     get_allowed_hosts,
     get_installed_apps,
     load_django_settings,
 )
-from django_api_explorer.core.url_extractor import URLPatternExtractor
+from django_api_explorer.core import URLPatternExtractor
 from django_api_explorer.utils.path_utils import join_url
 from django_api_explorer.web.enhanced_server import run_enhanced_server
 
@@ -54,12 +54,12 @@ console = Console()
 @click.option(
     "--port", type=int, default=8001, help="Port for the web server (default: 8001)"
 )
-@click.version_option(version="1.0.3", prog_name="django-api-explorer")
+@click.version_option(version="1.0.4", prog_name="django-api-explorer")
 def main(project_root, settings, app, curl, browser, watch, json, output, host, port):
     """
     🚀 Django API Explorer
 
-    Discover and document API endpoints in your Django project.
+    Discover and document API endpoints in Django projects.
 
     Examples:
         django-api-explorer                    # Scan all apps
@@ -68,6 +68,7 @@ def main(project_root, settings, app, curl, browser, watch, json, output, host, 
         django-api-explorer --curl             # Generate curl commands
         django-api-explorer --json -o apis.json # Export as JSON
     """
+    
     try:
         with Progress(
             SpinnerColumn(),
@@ -185,7 +186,7 @@ def main(project_root, settings, app, curl, browser, watch, json, output, host, 
             else:
                 # Terminal output
                 if curl:
-                    from django_api_explorer.core.formatter import APIFormatter
+                    from django_api_explorer.core import APIFormatter
 
                     formatter = APIFormatter([host])
                     output_text = formatter.format_curl(full_endpoints)

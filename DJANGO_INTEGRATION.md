@@ -503,7 +503,7 @@ python manage.py check
 python manage.py show_urls
 ```
 
-### Common Import Issues (Fixed in v1.0.3+)
+### Common Import Issues (Fixed in v1.0.4+)
 
 If you encounter `ModuleNotFoundError` or import-related issues:
 
@@ -518,7 +518,7 @@ django-api-explorer --version
 pip list | grep django-api-explorer
 ```
 
-**Note**: v1.0.3+ includes comprehensive fixes for import issues that ensure the package works correctly whether installed from PyPI or in development mode.
+**Note**: v1.0.4+ includes comprehensive fixes for import issues and static file inclusion that ensure the package works correctly whether installed from PyPI or in development mode, with proper web UI functionality.
 
 ### Performance Optimization
 

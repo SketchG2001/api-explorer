@@ -99,7 +99,7 @@ api-explorer/
 - **Eliminated Redundancy**: Removed duplicate/obsolete functionality
 - **Clear Separation**: Core, web, utils, tests directories
 
-#### **3. Package Structure Improvements (v1.0.3)**
+#### **3. Package Structure Improvements (v1.0.4)**
 - **Fixed Import Issues**: Resolved ModuleNotFoundError by converting relative imports to absolute imports
 - **Proper Namespace**: Restructured package with `django_api_explorer` namespace
 - **PyPI Compatibility**: Package now works correctly when installed globally from PyPI

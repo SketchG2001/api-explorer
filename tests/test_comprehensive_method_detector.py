@@ -6,13 +6,13 @@ Tests all method detection functionality for Django REST Framework ViewSets.
 import unittest
 from unittest.mock import MagicMock, Mock
 
-from core.comprehensive_method_detector import (
+from django_api_explorer.core.comprehensive_method_detector import (
     debug_method_detection,
     detect_methods_for_pattern,
     detect_methods_for_viewset_pattern,
     get_viewset_method_summary,
 )
-from core.models import APIMethod
+from django_api_explorer.core.models import APIMethod
 
 
 class MockViewSet:
