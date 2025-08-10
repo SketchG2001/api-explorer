@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_api_explorer"
-version = "1.0.1"
+version = "1.0.2"
 description = "A powerful command-line tool and web interface for discovering, documenting, and testing API endpoints in Django projects"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -50,7 +50,7 @@ dev = [
 ]
 
 [project.scripts]
-django-api-explorer = "cli:main"
+django-api-explorer = "django_api_explorer.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/SketchG2001/api-explorer"
@@ -59,7 +59,7 @@ Issues = "https://github.com/SketchG2001/api-explorer/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["core*", "utils*", "web*", "cli.py"]
+include = ["django_api_explorer*"]
 
 [tool.black]
 line-length = 88

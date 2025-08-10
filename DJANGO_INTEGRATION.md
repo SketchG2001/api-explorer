@@ -503,6 +503,23 @@ python manage.py check
 python manage.py show_urls
 ```
 
+### Common Import Issues (Fixed in v1.0.2+)
+
+If you encounter `ModuleNotFoundError` or import-related issues:
+
+```bash
+# Ensure you're using the latest version
+pip install --upgrade django-api-explorer
+
+# Verify installation
+django-api-explorer --version
+
+# Check if package is properly installed
+pip list | grep django-api-explorer
+```
+
+**Note**: v1.0.2+ includes comprehensive fixes for import issues that ensure the package works correctly whether installed from PyPI or in development mode.
+
 ### Performance Optimization
 
 ```python

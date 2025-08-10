@@ -14,6 +14,8 @@ pip install django-api-explorer
 pipenv install django-api-explorer
 ```
 
+> **Note**: v1.0.2+ includes fixes for import issues, ensuring the package works correctly when installed globally.
+
 ### From Source
 
 ```bash

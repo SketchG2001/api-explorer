@@ -44,7 +44,7 @@
 ### 📁 **Final Clean Project Structure**
 
 ```
-api-exporer/
+api-explorer/
 ├── README.md                    # 📖 Comprehensive documentation
 ├── cli.py                       # 🖥️ Main command-line interface
 ├── requirements.txt             # 📦 Python dependencies
@@ -98,6 +98,12 @@ api-exporer/
 #### **2. Code Organization**
 - **Eliminated Redundancy**: Removed duplicate/obsolete functionality
 - **Clear Separation**: Core, web, utils, tests directories
+
+#### **3. Package Structure Improvements (v1.0.2)**
+- **Fixed Import Issues**: Resolved ModuleNotFoundError by converting relative imports to absolute imports
+- **Proper Namespace**: Restructured package with `django_api_explorer` namespace
+- **PyPI Compatibility**: Package now works correctly when installed globally from PyPI
+- **Development Mode**: Maintains compatibility with development installations
 - **Modern Architecture**: Enhanced server with file watching
 - **Maintainable**: Clean, focused modules
 

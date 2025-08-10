@@ -18,6 +18,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced error handling and validation
 - Improved code quality and maintainability
 
+## [1.0.2] - 15-01-2025
+
+### Fixed
+- **ModuleNotFoundError**: Fixed import issues that prevented the package from working after installation
+- **Package Structure**: Restructured package with proper `django_api_explorer` namespace
+- **Import Resolution**: Converted all relative imports to absolute imports for proper package functionality
+- **Global Installation**: Package now works correctly when installed globally from PyPI
+
+### Changed
+- **Package Architecture**: Improved package structure for better maintainability
+- **Import System**: All imports now use absolute paths (`django_api_explorer.core.formatter`)
+- **Installation Compatibility**: Fixed compatibility issues between development and PyPI installations
+
+### Technical Details
+- Modified `django_api_explorer/cli.py` to use absolute imports
+- Updated `django_api_explorer/web/file_watcher_server.py` import statements
+- Ensured consistent namespace usage across all modules
+- Package now works identically whether installed from PyPI or in development mode
+
 ## [1.0.1] - 10-08-2025
 
 ### Fixed
