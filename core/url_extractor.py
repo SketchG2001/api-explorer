@@ -3,31 +3,21 @@ URL extraction module for Django API Explorer.
 
 This module is responsible for parsing Django URL patterns and extracting
 API endpoint information from Django projects.
-"""
 
-"""
-extract_urls() → Main function that walks through Django’s urlpatterns.
-
+extract_urls() → Main function that walks through Django's urlpatterns.
 URLPattern → Direct path like /api/users/.
-
 URLResolver → Nested include, so we go deeper.
-
 get_view_name() → Finds full Python path to the view.
-
 get_app_name() → Matches view to a Django app using INSTALLED_APPS.
-
 normalize_path() → Ensures /path/ format.
 """
 
-import re
-import inspect
 import importlib
-from typing import List, Dict, Any
+import re
+from typing import Any, Dict, List
 
-from django.urls import URLPattern, URLResolver
-from django.conf import settings
 from django.apps import apps
-from django.urls import get_resolver
+from django.urls import URLPattern, URLResolver, get_resolver
 
 from .models import APIEndpoint, APIMethod, AuthType
 
@@ -56,40 +46,53 @@ class URLPatternExtractor:
             if isinstance(pattern, URLPattern):
                 self._extract_from_pattern(pattern, base_path)
             elif isinstance(pattern, URLResolver):
-                # Handle nested URL patterns
                 new_base = base_path + str(pattern.pattern)
                 self._extract_from_resolver(pattern, new_base)
 
     def _extract_from_pattern(self, pattern: URLPattern, base_path: str):
         """Extract endpoint information from a single URL pattern."""
         try:
-            # Get the full path
             full_path = base_path + str(pattern.pattern)
 
-            # Clean up the path
             full_path = self._clean_path(full_path)
 
-            # Skip admin and static/media URLs
             if self._should_skip_path(full_path):
                 return
 
-            # Extract view information
             view_info = self._extract_view_info(pattern.callback)
 
-            # Handle DRF router patterns - they often have multiple methods
             if hasattr(pattern.callback, "cls"):
-                # This is a DRF ViewSet action
                 view_class = pattern.callback.cls
                 methods = self._get_viewset_methods_for_pattern(pattern, view_class)
                 if methods:
                     view_info["methods"] = methods
+            else:
+                from .method_detector import get_allowed_methods
 
-            # Create API endpoint
+                detected_methods = get_allowed_methods(pattern.callback)
+                if detected_methods:
+                    api_methods = []
+                    for method_name in detected_methods:
+                        if hasattr(APIMethod, method_name):
+                            api_methods.append(APIMethod(method_name))
+                    if api_methods:
+                        view_info["methods"] = api_methods
+
+            methods = view_info.get("methods", [APIMethod.GET])
+            if methods:
+                seen = set()
+                unique_methods = []
+                for method in methods:
+                    if method not in seen:
+                        seen.add(method)
+                        unique_methods.append(method)
+                methods = unique_methods
+
             endpoint = APIEndpoint(
                 path=full_path,
                 name=view_info.get("name", ""),
                 app_name=view_info.get("app_name", ""),
-                methods=view_info.get("methods", [APIMethod.GET]),
+                methods=methods,
                 auth_required=view_info.get("auth_required", False),
                 auth_type=view_info.get("auth_type", AuthType.NONE),
                 url_params=self._extract_url_params(full_path),
@@ -99,7 +102,6 @@ class URLPatternExtractor:
                 description=view_info.get("description"),
             )
 
-            # If we're extracting from a specific app, override the app name
             if hasattr(pattern, "_app_name_override"):
                 endpoint.app_name = pattern._app_name_override
 
@@ -110,37 +112,41 @@ class URLPatternExtractor:
 
     def _get_viewset_methods_for_pattern(self, pattern, view_class):
         """Get HTTP methods for a specific ViewSet pattern."""
-        from .comprehensive_method_detector import detect_methods_for_viewset_pattern
+        from .comprehensive_method_detector import (
+            detect_methods_for_pattern,
+            detect_methods_for_viewset_pattern,
+        )
 
-        # Get the pattern string
         pattern_str = str(pattern.pattern)
 
-        # Use the comprehensive method detector
-        return detect_methods_for_viewset_pattern(pattern_str, view_class)
+        methods = detect_methods_for_viewset_pattern(pattern_str, view_class)
+
+        if not methods:
+            methods = detect_methods_for_pattern(pattern_str, view_class)
+
+        return methods
 
     def _infer_action_from_pattern(self, pattern_str: str, view_class) -> str:
         """Infer the action name from the URL pattern."""
-        # Remove format suffix
+
         pattern_str = pattern_str.replace(r"\.(?P<format>[a-z0-9]+)/?$", "")
 
-        # Check for standard ViewSet patterns
         if pattern_str.endswith("/$") and not pattern_str.endswith("/(?P<pk>[^/.]+)/$"):
-            # This is likely a list/create endpoint
+
             if hasattr(view_class, "list") and hasattr(view_class, "create"):
-                return "list"  # We'll show GET, but it could also be POST
+                return "list"
             elif hasattr(view_class, "list"):
                 return "list"
             elif hasattr(view_class, "create"):
                 return "create"
 
         elif pattern_str.endswith("/(?P<pk>[^/.]+)/$"):
-            # This is likely a retrieve/update/destroy endpoint
             if (
                 hasattr(view_class, "retrieve")
                 and hasattr(view_class, "update")
                 and hasattr(view_class, "destroy")
             ):
-                return "retrieve"  # We'll show GET, but it could also be PUT/DELETE
+                return "retrieve"
             elif hasattr(view_class, "retrieve"):
                 return "retrieve"
             elif hasattr(view_class, "update"):
@@ -148,48 +154,24 @@ class URLPatternExtractor:
             elif hasattr(view_class, "destroy"):
                 return "destroy"
 
-        # Check for custom action patterns
-        elif "/apply-player-favourites/" in pattern_str:
-            return "apply_player_favourites"
-        elif "/store-campaign-players/" in pattern_str:
-            return "store_campaign_players"
-        elif "/archive/" in pattern_str:
-            return "archive"
-        elif "/assessments/" in pattern_str:
-            return "assessments"
-        elif "/book/" in pattern_str:
-            return "book"
-        elif "/cancel-reservation/" in pattern_str:
-            return "cancel_reservation"
-        elif "/clone-campaign/" in pattern_str:
-            return "clone_campaign"
-        elif "/flights/" in pattern_str:
-            return "flights"
-        elif "/history/" in pattern_str:
-            return "history"
-        elif "/mark_invoiced/" in pattern_str:
-            return "mark_invoiced"
-        elif "/mark_not_invoiced/" in pattern_str:
-            return "mark_not_invoiced"
-        elif "/remove-price-modifier/" in pattern_str:
-            return "remove_price_modifier"
-        elif "/stop/" in pattern_str:
-            return "stop"
-        elif "/unarchive/" in pattern_str:
-            return "unarchive"
-        elif "/upsert-price-modifier/" in pattern_str:
-            return "upsert_price_modifier"
+        if hasattr(view_class, "get_extra_actions"):
+            extra_actions = view_class.get_extra_actions()
+            for action_func in extra_actions:
+                action_name = action_func.__name__
+                if (
+                    f"/{action_name}/" in pattern_str
+                    or f"/{action_name.replace('_', '-')}/" in pattern_str
+                ):
+                    return action_name
 
         return None
 
     def _clean_path(self, path: str) -> str:
         """Clean and normalize URL path."""
-        # Remove regex patterns and convert to clean path
         path = re.sub(r"<[^>]+>", "{param}", path)
         path = re.sub(r"\(\?P<[^>]+>[^)]+\)", "{param}", path)
         path = re.sub(r"[^/a-zA-Z0-9\-_\.{}]", "", path)
 
-        # Ensure path starts with /
         if not path.startswith("/"):
             path = "/" + path
 
@@ -212,31 +194,26 @@ class URLPatternExtractor:
         """Extract URL parameters from path with enhanced information."""
         params = []
 
-        # Find all {param} placeholders (Django URL patterns)
         matches = re.findall(r"\{([^}]+)\}", path)
         for match in matches:
             param_info = self._analyze_parameter(match, path)
             params.append(param_info)
 
-        # Find all <param> placeholders (DRF patterns)
         matches = re.findall(r"<([^>]+)>", path)
         for match in matches:
             param_info = self._analyze_parameter(match, path)
             params.append(param_info)
 
-        # Find all (?P<param>...) named groups
         matches = re.findall(r"\(\?P<([^>]+)>", path)
         for match in matches:
             param_info = self._analyze_parameter(match, path)
             params.append(param_info)
 
-        # Find all (?P<param>...) named groups with regex patterns
         regex_matches = re.findall(r"\(\?P<([^>]+)>[^)]*\)", path)
         for match in regex_matches:
             param_info = self._analyze_parameter(match, path)
             params.append(param_info)
 
-        # Remove duplicates based on name
         seen_names = set()
         unique_params = []
         for param in params:
@@ -248,14 +225,11 @@ class URLPatternExtractor:
 
     def _analyze_parameter(self, param_name: str, path: str) -> Dict[str, str]:
         """Analyze a parameter and extract detailed information."""
-        # Clean the parameter name
         clean_name = param_name.strip()
 
-        # Infer parameter type and format
         param_type = self._infer_parameter_type(clean_name, path)
         param_format = self._infer_parameter_format(clean_name, path)
 
-        # Generate a more descriptive name
         descriptive_name = self._generate_descriptive_name(clean_name, path)
 
         return {
@@ -263,7 +237,7 @@ class URLPatternExtractor:
             "descriptive_name": descriptive_name,
             "type": param_type,
             "format": param_format,
-            "required": True,  # URL parameters are always required
+            "required": True,
             "description": self._generate_parameter_description(clean_name, path),
         }
 
@@ -271,69 +245,57 @@ class URLPatternExtractor:
         """Infer the parameter type based on name and context."""
         param_lower = param_name.lower()
 
-        # Common ID patterns
         if any(id_pattern in param_lower for id_pattern in ["id", "pk", "uuid"]):
             return "integer" if "uuid" not in param_lower else "string"
 
-        # Common string patterns
         if any(
             str_pattern in param_lower
             for str_pattern in ["name", "title", "slug", "email", "username"]
         ):
             return "string"
 
-        # Common date/time patterns
         if any(
             date_pattern in param_lower
             for date_pattern in ["date", "time", "created", "updated"]
         ):
             return "string"
 
-        # Common numeric patterns
         if any(
             num_pattern in param_lower
             for num_pattern in ["count", "limit", "offset", "page", "size"]
         ):
             return "integer"
 
-        # Default to string for unknown patterns
         return "string"
 
     def _infer_parameter_format(self, param_name: str, path: str) -> str:
         """Infer the parameter format based on name and context."""
         param_lower = param_name.lower()
 
-        # UUID format
         if "uuid" in param_lower:
             return "uuid"
 
-        # Email format
         if "email" in param_lower:
             return "email"
 
-        # Date formats
         if any(
             date_pattern in param_lower
             for date_pattern in ["date", "created", "updated"]
         ):
             return "date"
 
-        # Time formats
         if "time" in param_lower:
             return "date-time"
 
-        # Slug format
         if "slug" in param_lower:
             return "slug"
 
-        # Default format
         return "string"
 
     def _generate_descriptive_name(self, param_name: str, path: str) -> str:
         """Generate a more descriptive parameter name."""
         param_lower = param_name.lower()
 
-        # Common mappings for better readability
         name_mappings = {
             "id": "user_id",
             "pk": "primary_key",
@@ -352,30 +314,39 @@ class URLPatternExtractor:
             "size": "page_size",
         }
 
-        # Check for exact matches first
         if param_lower in name_mappings:
             return name_mappings[param_lower]
 
-        # Check for partial matches
         for key, value in name_mappings.items():
             if key in param_lower:
                 return value
 
-        # Try to infer from path context
         path_lower = path.lower()
 
-        # Handle specific patterns like "campaigns.P{param}a-z0-9/"
-        if "campaign" in path_lower and param_lower == "param":
-            if "playout" in path_lower:
-                return "playout_id"
-            elif "report" in path_lower:
-                return "report_id"
-            elif "apply-player-favourites" in path_lower:
-                return "campaign_id"
-            else:
-                return "campaign_id"
+        path_parts = path_lower.split("/")
+        resource_name = None
 
-        # Handle other specific patterns
+        for part in path_parts:
+            if part and part not in [
+                "api",
+                "v1",
+                "v2",
+                "v3",
+                "admin",
+                "auth",
+                "static",
+                "media",
+            ]:
+                resource_name = part
+                break
+
+        if resource_name:
+            if param_lower in ["id", "pk", "uuid"]:
+                return f"{resource_name}_id"
+            else:
+                return f"{resource_name}_{param_lower}"
+
+        # Handle common patterns
         if "user" in path_lower and param_lower not in ["id", "pk", "uuid"]:
             return f"user_{param_lower}"
         elif "article" in path_lower or "post" in path_lower:
@@ -384,22 +355,7 @@ class URLPatternExtractor:
             return f"product_{param_lower}"
         elif "order" in path_lower:
             return f"order_{param_lower}"
-        elif "report" in path_lower:
-            return f"report_{param_lower}"
-        elif "playout" in path_lower:
-            return f"playout_{param_lower}"
-        elif "flight" in path_lower:
-            return f"flight_{param_lower}"
-        elif "ad" in path_lower:
-            return f"ad_{param_lower}"
-        elif "creative" in path_lower:
-            return f"creative_{param_lower}"
-        elif "target" in path_lower:
-            return f"target_{param_lower}"
-        elif "audience" in path_lower:
-            return f"audience_{param_lower}"
 
-        # Default: return the original name with underscores
         return param_lower.replace("-", "_")
 
     def _generate_parameter_description(self, param_name: str, path: str) -> str:
@@ -426,43 +382,41 @@ class URLPatternExtractor:
             "size": "Number of items per page",
         }
 
-        # Handle specific patterns
         if param_lower == "param":
-            if "playout" in path_lower:
-                return "Unique identifier for the playout"
-            elif "report" in path_lower:
-                return "Unique identifier for the report"
-            elif "campaign" in path_lower:
-                return "Unique identifier for the campaign"
-            elif "flight" in path_lower:
-                return "Unique identifier for the flight"
-            elif "ad" in path_lower:
-                return "Unique identifier for the ad"
-            elif "creative" in path_lower:
-                return "Unique identifier for the creative"
-            elif "target" in path_lower:
-                return "Unique identifier for the target"
-            elif "audience" in path_lower:
-                return "Unique identifier for the audience"
+            path_parts = path_lower.split("/")
+            resource_name = None
+
+            for part in path_parts:
+                if part and part not in [
+                    "api",
+                    "v1",
+                    "v2",
+                    "v3",
+                    "admin",
+                    "auth",
+                    "static",
+                    "media",
+                ]:
+                    resource_name = part
+                    break
+
+            if resource_name:
+                return f"Unique identifier for the {resource_name}"
             else:
                 return "Unique identifier parameter"
 
-        # Check for exact matches
         if param_lower in descriptions:
             return descriptions[param_lower]
 
-        # Check for partial matches
         for key, desc in descriptions.items():
             if key in param_lower:
                 return desc
 
-        # Generate based on context
         if "id" in param_lower:
             return f"Unique identifier for {param_lower.replace('_id', '')}"
         elif "name" in param_lower:
             return f"Name of the {param_lower.replace('_name', '')}"
 
-        # Default description
         return f"Parameter: {param_name}"
 
     def _extract_view_info(self, callback) -> Dict[str, Any]:
@@ -485,12 +439,10 @@ class URLPatternExtractor:
 
             if hasattr(callback, "__module__"):
                 module_parts = callback.__module__.split(".")
-                # Try to find the actual Django app name
                 app_name = self._extract_app_name_from_module(callback, module_parts)
                 if app_name:
                     info["app_name"] = app_name
 
-            # Extract HTTP methods using enhanced method detector
             from .method_detector import get_allowed_methods
 
             detected_methods = get_allowed_methods(callback)
@@ -500,29 +452,31 @@ class URLPatternExtractor:
                     methods.append(APIMethod(method_name))
             if methods:
                 info["methods"] = methods
+            else:
+                for method_name in ["get", "post", "put", "patch", "delete"]:
+                    if hasattr(callback, method_name):
+                        if hasattr(APIMethod, method_name.upper()):
+                            methods.append(getattr(APIMethod, method_name.upper()))
+                if methods:
+                    info["methods"] = methods
 
-            # Check for authentication
             if hasattr(callback, "authentication_classes"):
                 auth_classes = callback.authentication_classes
                 if auth_classes:
                     info["auth_required"] = True
                     info["auth_type"] = self._detect_auth_type(auth_classes)
 
-            # Check for permissions
             if hasattr(callback, "permission_classes"):
                 info["permissions"] = [
                     perm.__name__ for perm in callback.permission_classes
                 ]
 
-            # Get view class name
             if hasattr(callback, "__class__"):
                 info["view_class"] = callback.__class__.__name__
 
-            # Try to extract serializer information
             if hasattr(callback, "serializer_class"):
                 info["serializer_class"] = callback.serializer_class.__name__
 
-            # Extract docstring as description
             if hasattr(callback, "__doc__") and callback.__doc__:
                 info["description"] = callback.__doc__.strip()
 
@@ -534,31 +488,22 @@ class URLPatternExtractor:
     def _extract_app_name_from_module(self, callback, module_parts) -> str:
         """Extract the actual Django app name from the module path."""
         try:
-            # First, try to get the app name from the callback's module
-            if hasattr(callback, "__module__"):
-                module_name = callback.__module__
+            if hasattr(callback, "cls"):
+                view_class = callback.cls
+                if hasattr(view_class, "__module__"):
+                    view_module = view_class.__module__
+                    view_parts = view_module.split(".")
+                    if len(view_parts) >= 2:
+                        potential_app = view_parts[1]
+                        if self._is_valid_django_app(potential_app):
+                            return potential_app
 
-                # Check if it's a DRF view with a view class
-                if hasattr(callback, "cls"):
-                    view_class = callback.cls
-                    if hasattr(view_class, "__module__"):
-                        view_module = view_class.__module__
-                        # Extract app name from view class module
-                        view_parts = view_module.split(".")
-                        if len(view_parts) >= 2:
-                            potential_app = view_parts[1]
-                            # Verify it's a valid Django app
-                            if self._is_valid_django_app(potential_app):
-                                return potential_app
+            for part in module_parts:
+                if self._is_valid_django_app(part):
+                    return part
 
-                # Try to extract from the module path
-                for part in module_parts:
-                    if self._is_valid_django_app(part):
-                        return part
-
-                # Fallback: try to get from the first part that looks like an app
-                if len(module_parts) >= 2:
-                    return module_parts[1]
+            if len(module_parts) >= 2:
+                return module_parts[1]
 
         except Exception as e:
             print(f"Error extracting app name: {e}")
@@ -568,10 +513,9 @@ class URLPatternExtractor:
     def _is_valid_django_app(self, app_name: str) -> bool:
         """Check if a string is a valid Django app name."""
         try:
-            # Check if it's a valid Django app configuration
             app_config = apps.get_app_config(app_name)
             return app_config is not None
-        except:
+        except Exception:
             return False
 
     def _detect_auth_type(self, auth_classes) -> AuthType:
@@ -579,7 +523,7 @@ class URLPatternExtractor:
         auth_class_names = [auth.__name__.lower() for auth in auth_classes]
 
         if any("jwt" in name for name in auth_class_names):
-            return AuthType.JWT
+            return AuthType.TOKEN  # JWT is a type of token
         elif any("token" in name for name in auth_class_names):
             return AuthType.TOKEN
         elif any("session" in name for name in auth_class_names):
@@ -589,29 +533,24 @@ class URLPatternExtractor:
         elif any("oauth" in name for name in auth_class_names):
             return AuthType.OAUTH
         else:
-            return AuthType.CUSTOM
+            return AuthType.API_KEY  # Use API_KEY instead of CUSTOM
 
     def extract_from_app(self, app_name: str) -> List[APIEndpoint]:
         """Extract endpoints from a specific Django app."""
         try:
-            # Get the app configuration
             app_config = apps.get_app_config(app_name)
             if not app_config:
                 return []
 
-            # Look for urls.py in the app
             urls_module = f"{app_name}.urls"
             try:
                 urls = importlib.import_module(urls_module)
 
-                # Extract patterns from the app's urls.py
                 if hasattr(urls, "urlpatterns"):
                     self.discovered_endpoints = []
                     for pattern in urls.urlpatterns:
                         if isinstance(pattern, URLPattern):
-                            # Set the app name for this pattern
                             if hasattr(pattern, "callback"):
-                                # Override the app name for patterns from this app
                                 pattern._app_name_override = app_name
                             self._extract_from_pattern(pattern, f"/{app_name}/")
                         elif isinstance(pattern, URLResolver):
@@ -621,14 +560,8 @@ class URLPatternExtractor:
                     return []
 
             except ImportError:
-                # App doesn't have a urls.py, try to find views
                 return []
 
         except Exception as e:
             print(f"Error extracting from app {app_name}: {e}")
             return []
-
-
-import inspect
-from django.urls import URLPattern, URLResolver
-from django.apps import apps

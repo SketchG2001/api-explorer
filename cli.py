@@ -6,18 +6,19 @@ A command-line tool to discover and document API endpoints in Django projects.
 """
 import os
 import sys
+
 import click
 from rich.console import Console
-from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
+from core.formatter import format_as_text
 from core.settings_loader import (
-    load_django_settings,
     get_allowed_hosts,
     get_installed_apps,
+    load_django_settings,
 )
 from core.url_extractor import URLPatternExtractor
-from core.formatter import format_as_text
 from utils.path_utils import join_url
 from web.enhanced_server import run_enhanced_server
 
@@ -53,7 +54,7 @@ console = Console()
 @click.option(
     "--port", type=int, default=8001, help="Port for the web server (default: 8001)"
 )
-@click.version_option(version="1.0.0", prog_name="django-api-explorer")
+@click.version_option(version="1.0.1", prog_name="django-api-explorer")
 def main(project_root, settings, app, curl, browser, watch, json, output, host, port):
     """
     🚀 Django API Explorer

@@ -22,7 +22,7 @@ This guide covers deploying Django API Explorer to PyPI and managing releases.
 pip install build twine
 
 # Install development tools
-pip install pytest black flake8 mypy
+pip install pytest black mypy
 
 # Install documentation tools
 pip install sphinx sphinx-rtd-theme
@@ -135,7 +135,7 @@ dev = [
     "pytest>=7.0.0",
     "pytest-django>=4.5.0",
     "black>=22.0.0",
-    "flake8>=5.0.0",
+            # "flake8>=5.0.0",  # Removed due to complexity issues
     "mypy>=1.0.0",
     "pre-commit>=2.20.0",
     "build>=0.10.0",
@@ -249,7 +249,7 @@ pytest
 
 # Run code quality checks
 black --check .
-flake8 .
+# flake8 .  # Removed due to complexity issues
 mypy .
 
 # Update version in pyproject.toml
@@ -296,7 +296,7 @@ Follow [Semantic Versioning](https://semver.org/):
 - [ ] **Update version** in `pyproject.toml`
 - [ ] **Update CHANGELOG.md** with new version
 - [ ] **Run all tests** and ensure they pass
-- [ ] **Check code quality** (black, flake8, mypy)
+- [ ] **Check code quality** (black, mypy)
 - [ ] **Build package** and test locally
 - [ ] **Create Git tag** for the release
 - [ ] **Upload to PyPI**
@@ -355,9 +355,9 @@ jobs:
     
     - name: Run code quality checks
       run: |
-        pip install black flake8 mypy
+        pip install black mypy
         black --check .
-        flake8 .
+        # flake8 .  # Removed due to complexity issues
         mypy .
 
   build-and-publish:
@@ -429,7 +429,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-django black flake8 mypy
+        pip install pytest pytest-django black mypy
     
     - name: Run tests
       run: pytest
@@ -437,7 +437,7 @@ jobs:
     - name: Run code quality checks
       run: |
         black --check .
-        flake8 .
+        # flake8 .  # Removed due to complexity issues
         mypy .
 ```
 

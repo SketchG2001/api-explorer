@@ -6,8 +6,8 @@ to represent API endpoints and their metadata.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Any
 from enum import Enum
+from typing import List, Optional
 
 
 class APIMethod(Enum):

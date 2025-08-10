@@ -1,11 +1,10 @@
 import http.server
+import json
+import os
 import socketserver
+import tempfile
 import threading
 import webbrowser
-import os
-import tempfile
-import json
-import urllib.parse
 from pathlib import Path
 
 

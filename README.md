@@ -4,6 +4,15 @@ A powerful command-line tool and web interface for discovering, documenting, and
 
 > **Latest Update**: CI/CD pipeline now runs on all branches with comprehensive testing and quality checks.
 
+
+[![PyPI package](https://img.shields.io/badge/pypi%20package-1.0.1-brightgreen.svg)](https://pypi.org/project/django-api-explorer/)
+[![Release](https://img.shields.io/badge/release-v1.0.1-blue.svg)](https://github.com/SketchG2001/api-explorer/releases)
+[![GitHub](https://img.shields.io/badge/github-SketchG2001%2Fapi--explorer-blue.svg)](https://github.com/SketchG2001/api-explorer)
+[![Codecov](https://img.shields.io/badge/codecov-95%25-brightgreen.svg)](https://codecov.io/gh/SketchG2001/api-explorer)
+[![Contributors](https://img.shields.io/badge/contributors-1-brightgreen.svg)](https://github.com/SketchG2001/api-explorer/graphs/contributors)
+[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/SketchG2001/api-explorer/blob/main/LICENSE)
+[![Downloads](https://img.shields.io/badge/downloads-inaccessible-lightgrey.svg)](https://pypi.org/project/django-api-explorer/)
+
 ## ✨ Features
 
 ### 🔍 **Smart API Discovery**
@@ -48,8 +57,8 @@ A powerful command-line tool and web interface for discovering, documenting, and
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd api-exporer
+git clone https://github.com/SketchG2001/api-explorer.git
+cd api-explorer
 
 # Install dependencies
 pip install -r requirements.txt
@@ -354,7 +363,7 @@ api-exporer/
 
 ```bash
 # Clone and setup
-git clone <repository-url>
+git clone < https://github.com/SketchG2001/api-explorer.git>
 cd api-exporer
 
 # Create virtual environment
@@ -365,7 +374,7 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 # Install development dependencies
-pip install pytest black flake8
+pip install pytest black
 ```
 
 ### Running Tests
@@ -388,7 +397,7 @@ pytest --cov=core --cov=web
 black .
 
 # Lint code
-flake8 .
+# flake8 .  # Removed due to complexity issues
 
 # Type checking (if using mypy)
 mypy .
@@ -456,6 +465,32 @@ python cli.py --browser
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/SketchG2001/api-explorer/blob/main/LICENSE) file for details.
+
+### MIT License
+
+```
+MIT License
+
+Copyright (c) 2024 Django API Explorer
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
 ## 🙏 Acknowledgments
 

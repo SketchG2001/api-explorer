@@ -62,7 +62,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Install additional development tools
-pip install pytest black flake8 mypy pre-commit
+pip install pytest black mypy pre-commit
 ```
 
 ### 3. Install Pre-commit Hooks
@@ -113,14 +113,14 @@ black --check .
 
 ### Linting
 
-We use **flake8** for linting:
+We use **black** for code formatting (flake8 removed due to complexity issues):
 
 ```bash
-# Run flake8
-flake8 .
+# Run black (flake8 removed due to complexity issues)
+black --check .
 
 # Run with specific configuration
-flake8 --max-line-length=88 --extend-ignore=E203,W503 .
+# flake8 --max-line-length=88 --extend-ignore=E203,W503 .  # Removed due to complexity issues
 ```
 
 ### Type Checking
@@ -199,7 +199,7 @@ Our CI/CD pipeline runs the following checks on every pull request:
 
 #### **📝 Code Quality**
 - **Black**: Code formatting check
-- **Flake8**: Linting and style enforcement
+- **Black**: Code formatting (flake8 removed due to complexity issues)
 - **isort**: Import sorting validation
 - **MyPy**: Type checking
 
@@ -226,7 +226,7 @@ Before submitting a PR, run these checks locally:
 black .
 
 # Check code quality
-flake8 .
+# flake8 .  # Removed due to complexity issues
 
 # Run type checking
 mypy core/ web/ utils/

@@ -1,15 +1,16 @@
 import http.server
-import socketserver
-import threading
-import webbrowser
-import os
-import tempfile
 import json
-import time
-from pathlib import Path
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+import os
 import queue
+import socketserver
+import tempfile
+import threading
+import time
+import webbrowser
+from pathlib import Path
+
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 
 class DjangoFileWatcher(FileSystemEventHandler):
@@ -123,12 +124,12 @@ class FileWatcherServer:
             // Auto-reload functionality
             let lastReloadTime = Date.now();
             let reloadCheckInterval;
-            
+
             // Start checking for updates
             function startAutoReload() {
-                reloadCheckInterval = setInterval(checkForUpdates, 2000); // Check every 2 seconds
+                reloadCheckInterval = setInterval(checkForUpdates, 2000);
             }
-            
+
             // Check for updates
             function checkForUpdates() {
                 fetch('/api/check-updates?t=' + Date.now())
@@ -144,13 +145,13 @@ class FileWatcherServer:
                         console.log('Auto-reload check failed:', error);
                     });
             }
-            
+
             // Start auto-reload when page loads
             document.addEventListener('DOMContentLoaded', function() {
                 startAutoReload();
                 console.log('🔄 Auto-reload enabled - watching for file changes...');
             });
-            
+
             // Clean up on page unload
             window.addEventListener('beforeunload', function() {
                 if (reloadCheckInterval) {

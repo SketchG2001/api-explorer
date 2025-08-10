@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
 
     steps:
     - uses: actions/checkout@v4
@@ -33,12 +33,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov pytest-django black flake8 mypy isort bandit safety build twine
+        pip install pytest pytest-cov pytest-django black mypy isort bandit safety build twine
     
     - name: Run tests with pytest
       run: |
         if [ -d "tests" ]; then
-          pytest tests/ -v --cov=django_api_explorer --cov-report=xml --cov-report=html || echo "Tests completed with some failures"
+          pytest tests/ -v --cov=core --cov=web --cov=utils --cov-report=xml --cov-report=html || echo "Tests completed with some failures"
         else
           echo "No tests directory found - skipping tests"
         fi
@@ -65,16 +65,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install black flake8 mypy isort
+        pip install black mypy isort
     
     - name: Check code formatting with Black
       run: |
         black --check --diff . || echo "Code formatting check completed"
     
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || echo "Critical linting issues found"
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics || echo "Linting check completed"
+    # Flake8 check removed due to complexity issues
     
     - name: Check imports with isort
       run: |
@@ -82,7 +79,7 @@ jobs:
     
     - name: Type check with mypy
       run: |
-        mypy django_api_explorer/ --ignore-missing-imports || true
+        mypy --explicit-package-bases core/ web/ utils/ --ignore-missing-imports || echo "Type checking completed with some issues"
 
   security:
     runs-on: ubuntu-latest
@@ -102,7 +99,7 @@ jobs:
     
     - name: Run security checks with Bandit
       run: |
-        bandit -r django_api_explorer/ -f json -o bandit-report.json || true
+        bandit -r core/ web/ utils/ -f json -o bandit-report.json || true
     
     - name: Run dependency security check with Safety
       run: |

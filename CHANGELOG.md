@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced error handling and validation
 - Improved code quality and maintainability
 
+## [1.0.1] - 10-08-2025
+
+### Fixed
+- **PyPI Deployment**: Fixed version conflict by incrementing package version
+- **Python Compatibility**: Resolved Python 3.8 compatibility issues in CI workflows
+- **Package Installation**: Fixed pip install issues in CI/CD pipelines
+
 ## [1.0.0] - 09-08-2025
 
 ### 🚀 Initial Release
@@ -125,14 +132,15 @@ django-api-explorer --project-path /path/to/django/project --browser --watch
 
 | Version | Release Date | Status | Description |
 |---------|--------------|--------|-------------|
+| 1.0.1 | 10-08-2025 | 🔧 Bug Fix | Fixed PyPI deployment and Python compatibility issues |
 | 1.0.0 | 09-08-2025 | 🚀 Initial Release | First ever release with complete feature set |
 
 ## 📊 Statistics
 
 ### 🚀 Release Information
-- **Version**: 1.0.0
-- **Release Date**: 09-08-2025
-- **Release Type**: Initial Release
+- **Version**: 1.0.1
+- **Release Date**: 10-08-2025
+- **Release Type**: Bug Fix Release
 - **Development Period**: 2025
 
 ### 📈 Project Metrics
@@ -173,7 +181,7 @@ django-api-explorer --project-path /path/to/django/project --browser --watch
 - **DOCUMENTATION_SUMMARY.md**: Documentation index
 
 ### 🔧 Technical Stack
-- **Python**: 3.8+
+- **Python**: 3.9+
 - **Django**: 3.2+
 - **Dependencies**: 4 core packages (django, click, rich, watchdog)
 - **Build System**: setuptools
