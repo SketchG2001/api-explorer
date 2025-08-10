@@ -11,15 +11,15 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from core.settings_loader import (
+from django_api_explorer.core.settings_loader import (
     load_django_settings,
     get_allowed_hosts,
     get_installed_apps,
 )
-from core.url_extractor import URLPatternExtractor
-from core.formatter import format_as_text
-from utils.path_utils import join_url
-from web.enhanced_server import run_enhanced_server
+from django_api_explorer.core.url_extractor import URLPatternExtractor
+from django_api_explorer.core.formatter import format_as_text
+from django_api_explorer.utils.path_utils import join_url
+from django_api_explorer.web.enhanced_server import run_enhanced_server
 
 console = Console()
 
@@ -160,7 +160,7 @@ def main(project_root, settings, app, curl, browser, watch, json, output, host, 
             if browser:
                 if watch:
                     # Use file watcher server
-                    from web.file_watcher_server import run_file_watcher_server
+                    from django_api_explorer.web.file_watcher_server import run_file_watcher_server
 
                     console.print("🔄 Starting file watcher mode...")
                     console.print(
@@ -184,7 +184,7 @@ def main(project_root, settings, app, curl, browser, watch, json, output, host, 
             else:
                 # Terminal output
                 if curl:
-                    from core.formatter import APIFormatter
+                    from django_api_explorer.core.formatter import APIFormatter
 
                     formatter = APIFormatter([host])
                     output_text = formatter.format_curl(full_endpoints)

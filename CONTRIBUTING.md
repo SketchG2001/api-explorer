@@ -167,7 +167,7 @@ pytest -n auto
 
 ```python
 import pytest
-from core.models import APIEndpoint, APIMethod
+from django_api_explorer.core.models import APIEndpoint, APIMethod
 
 def test_api_endpoint_creation():
     """Test creating an APIEndpoint."""
@@ -229,13 +229,13 @@ black .
 flake8 .
 
 # Run type checking
-mypy core/ web/ utils/
+mypy django_api_explorer/
 
 # Run security checks
-bandit -r core/ web/ utils/
+bandit -r django_api_explorer/
 
 # Run tests with coverage
-pytest --cov=core --cov=web --cov=utils --cov-report=html
+pytest --cov=django_api_explorer --cov-report=html
 ```
 
 ### CI/CD Status Badges
@@ -315,13 +315,13 @@ Then create a Pull Request on GitHub with:
 ### Development Guidelines
 
 #### **Core Features**
-- **Location**: `core/` directory
+- **Location**: `django_api_explorer/core/` directory
 - **Testing**: Comprehensive unit tests
 - **Documentation**: Update docstrings and README
 - **Backward compatibility**: Maintain compatibility when possible
 
 #### **Web Interface**
-- **Location**: `web/` directory
+- **Location**: `django_api_explorer/web/` directory
 - **Testing**: Test both server and client-side functionality
 - **Responsive design**: Ensure mobile compatibility
 - **Accessibility**: Follow WCAG guidelines
@@ -335,7 +335,7 @@ Then create a Pull Request on GitHub with:
 ### Example Feature Implementation
 
 ```python
-# core/new_feature.py
+# django_api_explorer/core/new_feature.py
 from typing import List, Dict, Any
 from .models import APIEndpoint
 

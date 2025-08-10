@@ -52,7 +52,7 @@ echo "🔍 Running linter..."
 flake8 .
 
 echo "🔒 Running security checks..."
-bandit -r core/ web/ utils/ || true
+bandit -r django_api_explorer/ || true
 
 echo "✅ Development environment setup complete!"
 echo ""
@@ -61,6 +61,6 @@ echo "1. Activate virtual environment: source .venv/bin/activate"
 echo "2. Run tests: pytest"
 echo "3. Format code: black ."
 echo "4. Check code quality: flake8 ."
-echo "5. Run security checks: bandit -r core/ web/ utils/"
+echo "5. Run security checks: bandit -r django_api_explorer/"
 echo ""
 echo "📖 For more information, see CONTRIBUTING.md"
